@@ -6,3 +6,12 @@ C:\Users\gblanco\Desktop\FileChecker\FileChecker\obj\Debug\FileChecker.Propertie
 C:\Users\gblanco\Desktop\FileChecker\FileChecker\obj\Debug\FileChecker.csproj.GenerateResource.Cache
 C:\Users\gblanco\Desktop\FileChecker\FileChecker\obj\Debug\FileChecker.exe
 C:\Users\gblanco\Desktop\FileChecker\FileChecker\obj\Debug\FileChecker.pdb
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\bin\Debug\FileChecker.exe.config
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\obj\Debug\FileChecker.exe
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\obj\Debug\FileChecker.pdb
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\bin\Debug\FileChecker.exe
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\bin\Debug\FileChecker.pdb
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\obj\Debug\FileChecker.Form1.resources
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\obj\Debug\FileChecker.Properties.Resources.resources
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\obj\Debug\FileChecker.csproj.GenerateResource.Cache
+C:\Users\gblanco\Desktop\FileChecker\FileChecker\FileChecker\obj\Debug\FileChecker.csproj.ResolveComReference.cache

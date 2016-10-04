@@ -9,16 +9,28 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Excel;
+using System.Runtime.InteropServices;
 
 namespace FileChecker
 {
     public partial class Form1 : Form
     {
+        /*Variables necesarias para escribir en el excel*/
+        Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
+        object misValue;
+        Workbook xlWorkBook;
+        Worksheet xlWorkSheet;
+
+        /*Variables para manejar los archivos*/
         string rulesFile;
         string filetoEvaluate;
         string evaluate;
         string rutaArchivos;
+        string rutaResultados;
         FolderBrowserDialog folder = new FolderBrowserDialog();
+        FolderBrowserDialog folderResultados = new FolderBrowserDialog();
+
 
 
 
@@ -31,11 +43,15 @@ namespace FileChecker
             // Set the column header style.
             DataGridViewCellStyle columnHeaderStyle = new DataGridViewCellStyle();
             columnHeaderStyle.BackColor = Color.Beige;
-            columnHeaderStyle.Font = new Font("Verdana", 10, FontStyle.Bold);
             dgvResultados.ColumnHeadersDefaultCellStyle = columnHeaderStyle;
         }
 
         private void button1_Click(object sender, EventArgs e)
+        {
+            cargarReglas();
+        }
+
+        private void cargarReglas()
         {
             DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
             if (result == DialogResult.OK) // Test result.
@@ -113,17 +129,26 @@ namespace FileChecker
 
         private void btnReporte_Click(object sender, EventArgs e)
         {
+            folderResultados.Description = "Seleccione la carpeta donde se ubican los archivos a evaluar";
+
+            if (folderResultados.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                Console.WriteLine(folderResultados.SelectedPath + "\\resultados.xls");
+                xlWorkBook.SaveAs(folderResultados.SelectedPath + "\\resultados.xls");
+            }
+
+           
+            xlWorkBook.Close(true, misValue, misValue);
+            xlApp.Quit();
+            releaseObject(xlWorkSheet);
+            releaseObject(xlWorkBook);
+            releaseObject(xlApp);
 
         }
 
         private void btnReglas2_Click(object sender, EventArgs e)
         {
-            DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
-            if (result == DialogResult.OK) // Test result.
-            {
-                rulesFile = openFileDialog1.FileName;
-                Console.WriteLine(rulesFile);
-            }
+            cargarReglas();
         }
 
         private void btnCarpeta_Click(object sender, EventArgs e)
@@ -133,41 +158,90 @@ namespace FileChecker
             if (folder.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 rutaArchivos = folder.SelectedPath;
+                Console.WriteLine(rutaArchivos);
+
             }
         }
 
         private void btnEvaluarGrupal_Click(object sender, EventArgs e)
         {
-            ///*Si existen archivos válidos de hilos para la simulación*/
-            //if (Directory.GetFiles(rutaArchivos, "*.sql").Length != 0)
-            //{
-            //    string[] archivos = Directory.GetFiles(rutaArchivos, "*.sql");
+            if (xlApp == null)
+            {
+                MessageBox.Show("Excel is not properly installed!!");
+                return;
+            }
+            else {//si existe excel en esta máquina
 
-            //    foreach (string name in archivos)
-            //    {
+                try {
+                    xlWorkBook = xlApp.Workbooks.Add();
+                }
+                catch (COMException ex)
+                {
+                    Console.WriteLine(ex.InnerException.ToString());
+                }
 
-            //    }
-            //}
-            //    int counter = 0;
-            //string rule;
+                misValue = System.Reflection.Missing.Value;
 
-            //dgvResultados.Columns[0].Name = "Regla";
-            //dgvResultados.Columns[1].Name = "Cantidad";
+                int contadorFilas = 1;
 
-            //// lee el conjunto de reglas para evaluar el archivo
-            //System.IO.StreamReader file = new System.IO.StreamReader(rulesFile);
+                /*Si existen archivos válidos de hilos para la simulación*/
+                if (Directory.GetFiles(rutaArchivos, "*.sql").Length != 0)
+                {
+                    string[] archivos = Directory.GetFiles(rutaArchivos, "*.sql");
 
-            //while ((rule = file.ReadLine()) != null)
-            //{
-            //    int resultados = Regex.Matches(evaluate.ToUpper(), rule.ToUpper()).Count;
+                    xlWorkSheet = (Worksheet)xlWorkBook.Worksheets.get_Item(1);
 
-            //    string[] fila = new string[] { rule.ToUpper(), resultados.ToString() };
+                    xlWorkSheet.Cells[contadorFilas, 1] = "Estudiante";
+                    xlWorkSheet.Cells[contadorFilas, 2] = "Regla";
+                    xlWorkSheet.Cells[contadorFilas, 3] = "Cantidad";
 
-            //    dgvResultados.Rows.Add(fila);
-            //    Console.WriteLine(rule);
-            //}
+                    foreach (string name in archivos)
+                    {
+                        evaluate = File.ReadAllText(name);                       
+                            
+                        //añadir el nombre del archivo al excel
+                        xlWorkSheet.Cells[contadorFilas+1, 1] = name;
 
-            //file.Close();
+                        string rule;
+
+                        // lee el conjunto de reglas para evaluar el archivo
+                        System.IO.StreamReader file = new System.IO.StreamReader(rulesFile);
+
+                        while ((rule = file.ReadLine()) != null)
+                        {
+                            contadorFilas++;
+                            int resultados = Regex.Matches(evaluate.ToUpper(), rule.ToUpper()).Count;
+
+                            xlWorkSheet.Cells[contadorFilas, 2] = rule.ToUpper();
+                            xlWorkSheet.Cells[contadorFilas, 3] = resultados.ToString();
+
+                            Console.WriteLine(rule);
+                        }
+
+                        file.Close();
+                    }
+
+                }
+            }
+            
+        }
+
+        private void releaseObject(object obj)
+        {
+            try
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+                obj = null;
+            }
+            catch (Exception ex)
+            {
+                obj = null;
+                MessageBox.Show("Exception Occured while releasing object " + ex.ToString());
+            }
+            finally
+            {
+                GC.Collect();
+            }
         }
     }
 }
