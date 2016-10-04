@@ -139,11 +139,11 @@
             // 
             // btnReporte
             // 
-            this.btnReporte.Location = new System.Drawing.Point(165, 126);
+            this.btnReporte.Location = new System.Drawing.Point(140, 148);
             this.btnReporte.Name = "btnReporte";
-            this.btnReporte.Size = new System.Drawing.Size(119, 31);
+            this.btnReporte.Size = new System.Drawing.Size(143, 31);
             this.btnReporte.TabIndex = 7;
-            this.btnReporte.Text = "Generar reporte";
+            this.btnReporte.Text = "Descargar reporte";
             this.btnReporte.UseVisualStyleBackColor = true;
             this.btnReporte.Click += new System.EventHandler(this.btnReporte_Click);
             // 

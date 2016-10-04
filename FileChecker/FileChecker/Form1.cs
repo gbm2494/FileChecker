@@ -140,9 +140,11 @@ namespace FileChecker
            
             xlWorkBook.Close(true, misValue, misValue);
             xlApp.Quit();
-            releaseObject(xlWorkSheet);
-            releaseObject(xlWorkBook);
-            releaseObject(xlApp);
+            //releaseObject(xlWorkSheet);
+            //releaseObject(xlWorkBook);
+            //releaseObject(xlApp);
+            MessageBox.Show("Archivo descargado con éxito");
+
 
         }
 
@@ -173,6 +175,7 @@ namespace FileChecker
             else {//si existe excel en esta máquina
 
                 try {
+                    xlWorkBook = null;
                     xlWorkBook = xlApp.Workbooks.Add();
                 }
                 catch (COMException ex)
@@ -197,10 +200,11 @@ namespace FileChecker
 
                     foreach (string name in archivos)
                     {
-                        evaluate = File.ReadAllText(name);                       
-                            
+                        evaluate = File.ReadAllText(name);
+
                         //añadir el nombre del archivo al excel
-                        xlWorkSheet.Cells[contadorFilas+1, 1] = name;
+                        string[] division = name.Split('\\');
+                        xlWorkSheet.Cells[contadorFilas+1, 1] = division[division.Length-1];
 
                         string rule;
 
@@ -219,7 +223,9 @@ namespace FileChecker
                         }
 
                         file.Close();
+
                     }
+                    MessageBox.Show("Archivo excel generado con éxito");
 
                 }
             }
