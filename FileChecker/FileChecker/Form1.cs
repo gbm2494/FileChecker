@@ -23,56 +23,77 @@ namespace FileChecker
         Worksheet xlWorkSheet;
 
         /*Variables para manejar los archivos*/
+        
+        //ruta del archivo de reglas 
         string rulesFile;
+
+        //ruta del archivo a evaluar individualmente
         string filetoEvaluate;
+
+        //contenido del archivo a evaluar
         string evaluate;
+
+        //ruta de la carpeta donde se encuentran todos los archivos a evaluar grupalmente
         string rutaArchivos;
+
+        //ruta donde se debe guardar el archivo de resultados
         string rutaResultados;
+
+        //folders para obtener las rutas
         FolderBrowserDialog folder = new FolderBrowserDialog();
         FolderBrowserDialog folderResultados = new FolderBrowserDialog();
 
-
-
-
-
         public Form1()
         {
-            InitializeComponent();
+            InitializeComponent(); 
+        }
+
+        /*
+         */
+        public void estiloGrid()
+        {
             dgvResultados.ColumnCount = 2;
             dgvResultados.ColumnHeadersVisible = true;
-            // Set the column header style.
             DataGridViewCellStyle columnHeaderStyle = new DataGridViewCellStyle();
             columnHeaderStyle.BackColor = Color.Beige;
             dgvResultados.ColumnHeadersDefaultCellStyle = columnHeaderStyle;
         }
 
+        /*Botón para cargar el conjunto de reglas en el botón del panel individual
+         */
         private void button1_Click(object sender, EventArgs e)
         {
             cargarReglas();
         }
 
+        /*
+         */
         private void cargarReglas()
         {
-            DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
-            if (result == DialogResult.OK) // Test result.
+            DialogResult result = openFileDialog1.ShowDialog(); // Se muestra el dialogo
+            if (result == DialogResult.OK) // Resultado de la selección
             {
                 rulesFile = openFileDialog1.FileName;
                 Console.WriteLine(rulesFile);
             }
         }
 
+        /*Botón para cargar el archivo a evaluar individualmente
+         */
         private void btnArchivo_Click(object sender, EventArgs e)
         {
-            DialogResult result = openFileDialog2.ShowDialog(); // Show the dialog.
+            DialogResult result = openFileDialog2.ShowDialog(); // Se muestra el dialogo
             
-            if (result == DialogResult.OK) // Test result.
+            if (result == DialogResult.OK) // Resultado de la selección
             {
-                filetoEvaluate = openFileDialog1.FileName;
+                filetoEvaluate = openFileDialog2.FileName;
                 Console.WriteLine(filetoEvaluate);
 
                 try
                 {
-                    evaluate = File.ReadAllText(filetoEvaluate);
+                    //carga en memoria el contenido del archivo
+                    //evaluate = File.ReadAllText(filetoEvaluate);
+                    evaluate = quitarComentarios(filetoEvaluate);
                     //Console.WriteLine(evaluate); 
 
                 }
@@ -82,13 +103,59 @@ namespace FileChecker
             }
         }
 
+        /*
+         */
+        public string quitarComentarios(string ruta)
+        {
+            string linea;
+            bool comentario = false;
+            bool comentarioLinea = false;
+            string resultado = "";
+
+            // lee el conjunto de reglas para evaluar el archivo
+            System.IO.StreamReader file = new System.IO.StreamReader(ruta);
+
+            while ((linea = file.ReadLine()) != null)
+            {
+                if (linea.Contains("/*") == true && linea.Contains("*/") == false)
+                {
+                    comentario = true;
+                }
+                else if ((linea.Contains("/*") == true && linea.Contains("*/") == true) || linea.Contains("--") == true)
+                {
+                    comentarioLinea = true;
+                }
+
+                if (comentarioLinea == false && comentario == false)
+                {
+                    resultado = resultado + linea;
+                    Console.WriteLine(linea);
+                }
+
+                if (linea.Contains("*/") == true)
+                {
+                    comentario = false;
+                }
+
+                if ((linea.Contains("/*") == true && linea.Contains("*/") == true) || linea.Contains("--") == true)
+                {
+                    comentarioLinea = false;
+                }
+
+            }
+
+            file.Close();
+
+            return resultado;
+        }
+
+        /*Botón para evaluar individualmente un archivo*/
         private void btnEvaluar_Click(object sender, EventArgs e)
         {
-            int counter = 0;
             string rule;
 
-            dgvResultados.Columns[0].Name = "Regla";
-            dgvResultados.Columns[1].Name = "Cantidad";
+            dgvResultados.Columns.Add("Regla", "Regla");
+            dgvResultados.Columns.Add("Cantidad", "Cantidad");
 
             // lee el conjunto de reglas para evaluar el archivo
             System.IO.StreamReader file = new System.IO.StreamReader(rulesFile);
@@ -100,13 +167,15 @@ namespace FileChecker
                 string[] fila = new string[] { rule.ToUpper(), resultados.ToString() };
 
                 dgvResultados.Rows.Add(fila);
-                Console.WriteLine(rule);
+               // Console.WriteLine(rule);
             }
 
             file.Close();
 
         }
 
+        /*
+         */
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (tabMenu.SelectedTab == tabMenu.TabPages["Grupal"])//your specific tabname
@@ -121,12 +190,15 @@ namespace FileChecker
             }
         }
 
+        /*
+         */
         private void Form1_Load(object sender, EventArgs e)
         {
             btnReporte.Hide();
         }
 
-
+        /*
+         */
         private void btnReporte_Click(object sender, EventArgs e)
         {
             folderResultados.Description = "Seleccione la carpeta donde se ubican los archivos a evaluar";
@@ -144,15 +216,17 @@ namespace FileChecker
             //releaseObject(xlWorkBook);
             //releaseObject(xlApp);
             MessageBox.Show("Archivo descargado con éxito");
-
-
         }
 
+        /*Botón para cargar las reglas en el panel grupal
+         */
         private void btnReglas2_Click(object sender, EventArgs e)
         {
             cargarReglas();
         }
 
+        /*Botón para cargar la ruta donde se desea guardar el excel de resultados
+         */
         private void btnCarpeta_Click(object sender, EventArgs e)
         {
             folder.Description = "Seleccione la carpeta donde se ubican los archivos a evaluar";
@@ -165,6 +239,8 @@ namespace FileChecker
             }
         }
 
+        /*Botón para generar la evaluación grupal
+         */
         private void btnEvaluarGrupal_Click(object sender, EventArgs e)
         {
             if (xlApp == null)
@@ -200,7 +276,7 @@ namespace FileChecker
 
                     foreach (string name in archivos)
                     {
-                        evaluate = File.ReadAllText(name);
+                        evaluate = quitarComentarios(name);
 
                         //añadir el nombre del archivo al excel
                         string[] division = name.Split('\\');
@@ -219,7 +295,7 @@ namespace FileChecker
                             xlWorkSheet.Cells[contadorFilas, 2] = rule.ToUpper();
                             xlWorkSheet.Cells[contadorFilas, 3] = resultados.ToString();
 
-                            Console.WriteLine(rule);
+                            //Console.WriteLine(rule);
                         }
 
                         file.Close();
@@ -232,6 +308,8 @@ namespace FileChecker
             
         }
 
+        /*
+         */
         private void releaseObject(object obj)
         {
             try
