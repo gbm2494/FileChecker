@@ -129,7 +129,7 @@ namespace FileChecker
                 if (comentarioLinea == false && comentario == false)
                 {
                     resultado = resultado + linea;
-                    Console.WriteLine(linea);
+                  //  Console.WriteLine(linea);
                 }
 
                 if (linea.Contains("*/") == true)
@@ -268,6 +268,8 @@ namespace FileChecker
                 {
                     string[] archivos = Directory.GetFiles(rutaArchivos, "*.sql");
 
+                    int cambioColor = 0;
+
                     xlWorkSheet = (Worksheet)xlWorkBook.Worksheets.get_Item(1);
 
                     xlWorkSheet.Cells[contadorFilas, 1] = "Estudiante";
@@ -276,6 +278,7 @@ namespace FileChecker
 
                     foreach (string name in archivos)
                     {
+                        cambioColor++;
                         evaluate = quitarComentarios(name);
 
                         //añadir el nombre del archivo al excel
@@ -294,6 +297,18 @@ namespace FileChecker
 
                             xlWorkSheet.Cells[contadorFilas, 2] = rule.ToUpper();
                             xlWorkSheet.Cells[contadorFilas, 3] = resultados.ToString();
+                            if (cambioColor % 2 == 0)
+                            {
+                                xlWorkSheet.Cells[contadorFilas, 2].Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Silver);
+                                xlWorkSheet.Cells[contadorFilas, 3].Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Silver);
+                            }
+                            else
+                            {
+                                xlWorkSheet.Cells[contadorFilas, 2].Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
+                                xlWorkSheet.Cells[contadorFilas, 3].Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
+                            
+                        }
+
 
                             //Console.WriteLine(rule);
                         }
